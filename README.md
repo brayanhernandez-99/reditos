@@ -152,11 +152,16 @@ Este proyecto contiene una aplicación Node.js con integración y despliegue con
 
 4. **Variables de entorno (GitHub Secrets)**
 ```bash
+  https://github.com/${{username}}/${{repository}}/settings/secrets/  
+  
   | Nombre           | Descripción                      |
   |------------------|----------------------------------|
   | DOCKER_USERNAME  | Usuario Docker Hub               |
   | DOCKER_PASSWORD  | Token o contraseña Docker Hub    |
   | KUBECONFIG       | Contenido completo de kubeconfig |
+
+  kubectl config view --raw > kubeconfig
+  cat kubeconfig
 ```
 
 ---
