@@ -7,7 +7,7 @@
     "start": "node index.js",
     "ci": "npm install && npm test",
     "dev": "npm test && node index.js",
-    "test": "mocha",
+    "test": "mocha --exit",
     "lint": "eslint ."
   },
   "dependencies": {
