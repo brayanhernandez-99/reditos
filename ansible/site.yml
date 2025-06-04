@@ -1,0 +1,5 @@
+- name: Configurar instancia ec2 con Nginx
+  hosts: ec2
+  become: true
+  roles:
+    - nginx

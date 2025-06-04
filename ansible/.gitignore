@@ -1,0 +1,35 @@
+# Ignore Ansible vault files
+*.vault
+*.vault.yaml
+*.vault.yml
+
+# Ignore variable files with secrets
+group_vars/*.vault
+host_vars/*.vault
+group_vars/*/vault.yml
+host_vars/*/vault.yml
+
+# Ignore roles dependencies if managed by Galaxy
+roles/*/
+!roles/requirements.yml
+
+# Ignore SSH keys or credentials
+*.pem
+*.key
+*.crt
+*.pub
+
+# Ignore compiled files or temporary files
+*.retry
+*.log
+*.tmp
+
+# Ignore inventory files if sensitive
+inventory/*.ini
+inventory/*.yaml
+inventory/*.yml
+
+*.vault
+*.pem
+*.key
+vault_pass.txt
