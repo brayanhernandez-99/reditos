@@ -1,12 +1,13 @@
 {
   "name": "reditos-app",
   "version": "1.0.0",
-  "description": "Microservicio con Express ",
+  "description": "Microservicio con Node.js",
   "main": "index.js",
   "scripts": {
-    "start": "npm test && node index.js",
+    "start": "node index.js",
     "test": "mocha",
-    "ci": "npm install && npm test"
+    "ci": "npm install && npm test",
+    "dev": "npm test && node index.js"
   },
   "dependencies": {
     "express": "^4.18.4",

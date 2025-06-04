@@ -8,6 +8,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docker
     steps:
       - name: Checkout código
         uses: actions/checkout@v3
@@ -37,10 +40,10 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Construir imagen Docker
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/mi-app:latest .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/reditos-app:latest .
 
       - name: Push a Docker Hub
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/mi-app:latest
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/reditos-app:latest
 
   deploy:
     runs-on: ubuntu-latest
