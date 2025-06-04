@@ -8,6 +8,7 @@ resource "aws_db_instance" "db_reditos" {
   password               = var.db_password
   vpc_security_group_ids = [module.network.rds_sg_reditos_id]
   db_subnet_group_name   = aws_db_subnet_group.db_snetg.name
+  publicly_accessible    = false
   skip_final_snapshot    = true
 }
 

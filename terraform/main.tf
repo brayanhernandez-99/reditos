@@ -9,10 +9,6 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = var.region
-}
-
 module "network" {
   source              = "./modules/network"
   vpc_cidr            = var.vpc_reditos
