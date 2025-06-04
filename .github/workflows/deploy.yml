@@ -6,8 +6,9 @@ on:
       - main
 
 jobs:
-  test:
+  tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: docker
@@ -28,7 +29,8 @@ jobs:
 
   build_and_push:
     runs-on: ubuntu-latest
-    needs: test
+    timeout-minutes: 10
+    needs: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v3
@@ -47,22 +49,23 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: build_and_push
     steps:
       - name: Checkout código
         uses: actions/checkout@v3
 
-      - name: Configurar kubectl
+      - name: Configurar kubernetes
         uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
 
-      - name: Establecer credenciales de kubeconfig
-        run: |
-          echo "${{ secrets.KUBECONFIG }}" > kubeconfig
-          export KUBECONFIG=$PWD/kubeconfig
+      - name: Establecer credenciales de kubernetes
+        run: echo "${{ secrets.KUBECONFIG }}" > $HOME/kubeconfig
 
       - name: Desplegar a Kubernetes
+        env:
+          KUBECONFIG: $HOME/kubeconfig
         run: |
-          kubectl apply -f kubernetes/deployment.yaml
-          kubectl apply -f kubernetes/service.yaml
+          kubectl apply -f docker/kubernetes/deployment.yaml
+          kubectl apply -f docker/kubernetes/service.yaml

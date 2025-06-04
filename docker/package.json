@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "mocha",
     "ci": "npm install && npm test",
-    "dev": "npm test && node index.js"
+    "dev": "npm test && node index.js",
+    "test": "mocha",
+    "lint": "eslint ."
   },
   "dependencies": {
     "express": "^4.18.4",
@@ -16,6 +17,11 @@
   "devDependencies": {
     "mocha": "^10.2.0",
     "chai": "^4.3.7",
-    "supertest": "^6.3.3"
-  }
+    "supertest": "^6.3.3",
+    "eslint": "^8.0.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-n": "^15.0.0",
+    "eslint-plugin-promise": "^6.0.0"
+    }
 }
