@@ -1,5 +1,8 @@
 - name: Configurar instancia ec2 con Nginx
   hosts: ec2
   become: true
+  gather_facts: false
+  vars_files:
+    - group_vars/vault.yml
   roles:
     - nginx

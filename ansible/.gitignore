@@ -33,3 +33,4 @@ inventory/*.yml
 *.pem
 *.key
 vault_pass.txt
+*.retry
