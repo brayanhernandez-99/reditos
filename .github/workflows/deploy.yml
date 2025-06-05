@@ -66,18 +66,14 @@ jobs:
         with:
           version: 'latest'
 
-      - name: Establecer credenciales de kubernetes
+      - name: Establecer credenciales de Kubernetes
         run: echo "${{ secrets.KUBECONFIG }}" > $HOME/kubeconfig
       
-      - name: Verificar kubeconfig
+      - name: Verificar credenciales Kubernetes
         env:
           KUBECONFIG: $HOME/kubeconfig
         run: |
-          echo "=== Primeras 20 líneas de kubeconfig ==="
-          head -n 20 $HOME/kubeconfig
-          echo "=== kubectl config view ==="
           kubectl config view
-          echo "=== kubectl cluster-info ==="
           kubectl cluster-info
      
       #- name: Desplegar a Kubernetes
@@ -86,4 +82,3 @@ jobs:
       #  run: |
       #    kubectl apply -f deployment.yaml
       #    kubectl apply -f service.yaml
-      

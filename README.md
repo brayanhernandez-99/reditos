@@ -79,10 +79,10 @@ docker run -it alpine/ansible:latest "/bin/bash"
 Para la implementación de esta solución, se deben tener en cuenta los siguientes requisitos:
 - Instalar **Docker**: https://www.docker.com/products/docker-desktop/
 - Cuenta en Docker Hub: https://hub.docker.com/repositories/
-- **Kubernetes** (Kind, Minikube o clúster cloud): https://kind.sigs.k8s.io/
-- Descargar **kubectl** configurado: https://kubernetes.io/docs/tasks/tools/
-- Descargar **Node.js** opcional: https://nodejs.org/en/download
-- Crear cuenta en **loggly.com** opcional: https://loggly.com con el fin de crear un Daemonset
+- Descargar **Kubernetes** (Kind): https://kind.sigs.k8s.io/
+- Descargar **kubectl**: https://kubernetes.io/docs/tasks/tools/
+- Descargar **Node.js**: https://nodejs.org/en/download
+- Crear cuenta en **loggly.com**: https://loggly.com con el fin de crear un **Daemonset**
 
 Una vez cumplidos los requisitos, seguir los siguientes pasos:
 
@@ -118,6 +118,9 @@ kind create cluster --config docker/kubernetes/cluster.yml
 # Ver informacion del Cluster
 kubectl cluster-info --context kind-reditos-cluster
 
+# Eliminar un Cluster 
+kind delete cluster
+
 # Aplicar manifiestos sobre el Cluster
 kubectl apply -f docker/kubernetes/deployment.yaml
 kubectl apply -f docker/kubernetes/service.yaml
@@ -149,9 +152,22 @@ Para la implementación de esta solución, se deben tener en cuenta los siguient
 - Contar con un repositorio y crear al menos un archivo de workflow
 - Acceso al clúster Kubernetes (`KUBECONFIG` como secreto).
 - YAMLs o manifiestos definidos en la carpeta `docker/kubernetes/*.yml`.
-
+- Instalar y poseer una cuenta **Ngrok**: https://dashboard.ngrok.com/get-started/setup/windows con el fin de publicar el Cluster local hacia **Internet**
 
 Este proyecto contiene una aplicación Node.js con integración y despliegue continuo (CI/CD) usando GitHub Actions Docker y Kubernetes.
+Una vez cumplidos los requisitos, seguir los siguientes pasos:
+
+## Configurar Ngrok
+```bash
+# Crear file ngrok.yml con el token 
+ngrok config add-authtoken ${{ngrok_token}}
+
+# Averigua el puerto del API server de Kind
+kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'
+
+# Exponer puerto hacia Internet
+ngrok http --host-header=rewrite 127.0.0.1:60892
+```
 
 ## Flujo del Pipeline
 
@@ -187,4 +203,3 @@ cat kubeconfig
 Para la implementación de esta solución, se deben tener en cuenta los siguientes requisitos:
 
 Una vez cumplidos los requisitos, seguir los siguientes pasos:
-
