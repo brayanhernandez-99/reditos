@@ -61,12 +61,12 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v3
 
-      - name: Configurar kubernetes
+      - name: Configurar kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
 
-      - name: Establecer credenciales de Kubernetes
+      - name: Establecer kubeconfig desde secreto
         run: echo "${{ secrets.KUBECONFIG }}" > $HOME/kubeconfig
       
       - name: Verificar credenciales Kubernetes
