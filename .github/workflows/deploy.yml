@@ -55,7 +55,7 @@ jobs:
     timeout-minutes: 10
     defaults:
       run:
-        working-directory: docker
+        working-directory: docker/kubernetes
     needs: build_and_push
     steps:
       - name: Checkout código
@@ -68,10 +68,22 @@ jobs:
 
       - name: Establecer credenciales de kubernetes
         run: echo "${{ secrets.KUBECONFIG }}" > $HOME/kubeconfig
-
-      - name: Desplegar a Kubernetes
+      
+      - name: Verificar kubeconfig
         env:
           KUBECONFIG: $HOME/kubeconfig
         run: |
-          kubectl apply -f kubernetes/deployment.yaml
-          kubectl apply -f kubernetes/service.yaml
+          echo "=== Primeras 20 líneas de kubeconfig ==="
+          head -n 20 $HOME/kubeconfig
+          echo "=== kubectl config view ==="
+          kubectl config view
+          echo "=== kubectl cluster-info ==="
+          kubectl cluster-info
+     
+      #- name: Desplegar a Kubernetes
+      #  env:
+      #    KUBECONFIG: $HOME/kubeconfig
+      #  run: |
+      #    kubectl apply -f deployment.yaml
+      #    kubectl apply -f service.yaml
+      
