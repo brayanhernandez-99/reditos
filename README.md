@@ -125,19 +125,19 @@ kind delete cluster
 kubectl apply -f docker/kubernetes/deployment.yaml
 kubectl apply -f docker/kubernetes/service.yaml
 
-# Validar estado
+# Validar estado service
 kubectl get service reditos-app
 NAME          TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
 reditos-app   LoadBalancer   10.96.75.193   <pending>     80:30962/TCP   17s
 
-# Validar estado
+# Validar estado nodos
 kubectl get nodes
 NAME                            STATUS   ROLES           AGE   VERSION
 reditos-cluster-control-plane   Ready    control-plane   13m   v1.33.1
 reditos-cluster-worker          Ready    <none>          13m   v1.33.1
 reditos-cluster-worker2         Ready    <none>          13m   v1.33.1
 
-# Validar estado
+# Validar estado pods
 kubectl get pods -o wide
 NAME                           READY   STATUS    RESTARTS      AGE     IP           NODE                      
 reditos-app-7ccb5d5c47-bjmfn   0/1     Running   2 (78s ago)   9m13s   10.244.2.2   reditos-cluster-worker2 
@@ -223,6 +223,100 @@ users:
 ---
 
 ## 5. Seguridad y Buenas Prácticas.
-Para la implementación de esta solución, se deben tener en cuenta los siguientes requisitos:
+Para la implementación de esta solución, se tuvieron en cuenta criterios como posibles mejoras, buenas prácticas ademas de implementar seguridad las cuales seran descritas acontinuación:
 
-Una vez cumplidos los requisitos, seguir los siguientes pasos:
+## Buenas Practicas Usadas
+
+### 1. Infraestructura como Código (Terraform)
+
+- **Modularización**  
+  He dividido la infraestructura en módulos reutilizables (network, ec2, rds). De este modo:
+  - Puedo aislar responsabilidades (VPC/Subnets, instancias EC2, clúster RDS) y facilitar la reutilización de código en otros proyectos.  
+  - Cada módulo se prueba y versiona de forma independiente, manteniendo la configuración más limpia y reduciendo el riesgo de cambios accidentales.
+
+- **Variables**  
+  - Definí variables explícitas en `variables.tf` y `terraform.tfvars`, evitando “hardcodear” valores dentro de los recursos.  
+  - Marqué las credenciales (por ejemplo, `db_username`, `db_password`) como **sensitive = true**, de manera que no aparezcan expuestas en la salida de consola ni en el estado de Terraform por error.
+
+- **Seguridad en la red redes**  
+  - El Security Group del RDS sólo permite tráfico entrante en el puerto 3306 desde el SG de EC2, evitando exponer MySQL al público.  
+  - El Security Group de EC2 está restringido a los puertos estrictamente necesarios (SSH, HTTP/HTTPS).  
+  - Etiqueté todos los recursos con `tags` para facilitar la identificación y trazabilidad en AWS.
+
+---
+
+### 2. Automatización con Ansible
+
+- **Roles y organización**  
+  Separé la lógica por rol (`roles/nginx`), siguiendo la convención de Ansible y asi:
+  - Poder agregar nuevos roles en el futuro (p. ej. base de datos, usuarios, monitoreo) sin desorden.  
+  - Agrupé parámetros comunes en `group_vars/all.yml` (intérprete de Python, usuario SSH, llave privada), evitando duplicar valores.
+
+- **Gestión de secretos**  
+  - Utilizo **Ansible Vault** (`group_vars/vault.yml`) para almacenar credenciales y datos sensibles. De ese modo, ninguna contraseña viaja en texto plano dentro del repositorio.  
+  - Ademas de cifrar el Vault para mantener secretos ocultos y incluyéndolo en `.gitignore`.
+
+- **Configuracion**  
+  - En los playbooks uso módulos como `apt` con `state: present` y `update_cache: true` para que Nginx se instale sólo si no existe.  
+  - Evito usar `shell` o `command` cuando existe un módulo específico (p. ej. utilizo `service` para levantar o validar el servicio de Nginx).
+
+---
+
+### 3. Contenedores (Docker)
+
+- **Imagen base ligera**  
+  - Seleccioné `node:18-alpine` para que la imagen final sea lo más pequeña posible y tenga menos vulnerabilidades.  
+
+- **Variables de entorno y configuración**  
+  - Cargo un archivo `.env` local (excluido del repositorio) para no exponer configuraciones sensibles.  
+
+---
+
+### 4. CI/CD con GitHub Actions
+
+- **Pipeline multinivel (tests → build → deploy)**  
+  - Dividí el flujo en jobs (`tests`, `build_and_push`, `deploy`), lo cual:  
+    - Aporta claridad y facilita identificar en qué fase ocurre un fallo.  
+    - Impide que el build avance si las pruebas fallan, porque establecí `needs: tests`.
+
+- **Uso de secretos**  
+  - Nunca dejo credenciales en texto plano:  
+    - `DOCKER_USERNAME` y `DOCKER_PASSWORD` para autenticarme en Docker Hub.  
+    - `KUBECONFIG` almacenado como secret, que luego vuelco a `~/.kube/config` asi no queda expuesto en los logs.
+
+- **Timeouts y entorno controlado**  
+  - Configuré `timeout-minutes: 10` en cada job para evitar que un proceso quede “colgado” de forma indefinida.  
+  - Incluí pasos de verificación (por ejemplo, `kubectl cluster-info` y `kubectl get pods`) que validan la conexión y el despliegue, en lugar de asumir éxito sin comprobar.
+
+- **Linter de estado y salud**  
+  - En la etapa de `tests` corro `npm test` antes de construir la imagen, garantizando que no se despliegue código con fallos.  
+  - En la etapa de `deploy` reviso el estado de los pods con `kubectl get pods -o wide`.
+
+---
+
+### 5. Kubernetes (Manifiestos)
+
+- **Definición de Recursos**  
+  - Configuré **livenessProbe** y **readinessProbe** para asegurarme de que los pods se reinicien si la aplicación deja de responder (`/health`) y no reciban tráfico hasta estar listos.  
+  - Especifico **requests** y **limits** de CPU/memoria en el Deployment para:
+    - Garantizar calidad de servicio y estabilidad del clúster.  
+    - Evitar que un pod consuma más recursos de los asignados y provoque “evictions” en el nodo.
+
+- **Servicio LoadBalancer**  
+  - Utilizo un Service de tipo `LoadBalancer` para exponer el Deployment. De esta forma, en un proveedor cloud con soporte L4/L7 (AWS, GCP), se aprovisiona el balanceador automáticamente.
+
+- **DaemonSet para Fluentd** **Mejora Añdida**
+  - Desplegué un DaemonSet (`fluentd-es-v1.20`) que recolecta logs de todos los nodos (hostPath `/var/log`, `/var/lib/docker/containers`) y los envía a Elasticsearch/Stack.  
+  - Con esto, centralizo los logs y evito pérdida de información ademas de monitorear la aplicación en tiempo real.
+
+---
+
+## Seguridad y Recomendaciones
+
+- **Ambientes**: Es recomendable utilizar variables para parámetros comunes y mantener archivos de variables independientes por entorno (prod, staging, dev) para que no se mezclen configuraciones y credenciales al aplicar cambios.
+
+- **Despliegues**: Más adelante podría parametrizar el workflow para que se ejecute en dev/staging/prod, usando distintas ramas o tags con sus respectivos `secrets`. 
+
+- **Análisis estático**: Integrar en la pipeline alguna acción como `npm audit` o un escaneo de dependencias, bloqueando el build en caso de vulnerabilidades críticas.
+
+- **Monitoreo y alertas**: Mas adelante por medio de Fluentd planeo agregar métricas clave (CPU, memoria, latencia) y enviarlas a Prometheus/Grafana o al servicio de monitoreo de la nube.  
