@@ -1,6 +1,7 @@
 apiVersion: kind.x-k8s.io/v1alpha4
 kind: Cluster
-name: mi-cluster
+name: reditos-cluster
+
 nodes:
   - role: control-plane
     extraPortMappings:
@@ -11,3 +12,5 @@ nodes:
     extraMounts:
       - hostPath: /home/reditos/shared
         containerPath: /mnt/shared
+  - role: worker
+  - role: worker

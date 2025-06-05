@@ -30,6 +30,9 @@ jobs:
   build_and_push:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: docker
     needs: tests
     steps:
       - name: Checkout código
@@ -50,6 +53,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: docker
     needs: build_and_push
     steps:
       - name: Checkout código

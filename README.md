@@ -88,7 +88,7 @@ Una vez cumplidos los requisitos, seguir los siguientes pasos:
 
 1. Crear variables de entorno **.evn** 
 ```bash
-cd kubernetes
+cd docker
 touch .env
 
 # APP_NAME=reditos-app
@@ -98,6 +98,8 @@ touch .env
 
 2. Ejecutar aplicacion en Docker 
 ```bash
+# Ingresar al dir de docker
+cd docker
 docker build -t brayanhernandez99/reditos-app:latest .
 docker run -p 3000:3000 brayanhernandez99/reditos-app:latest
 ```
@@ -111,18 +113,32 @@ docker push brayanhernandez99/reditos-app:latest
 4. Ejecutar localmente un Cluster en Kubernetes
 ```bash
 # Crear un Cluster con multi nodo con Kind 
-kind create cluster --config kubernetes/cluster.yml
+kind create cluster --config docker/kubernetes/cluster.yml
 
 # Ver informacion del Cluster
-kubectl cluster-info --context kind-kind
+kubectl cluster-info --context kind-reditos-cluster
 
 # Aplicar manifiestos sobre el Cluster
-kubectl apply -f kubernetes/deployment.yaml
-kubectl apply -f kubernetes/service.yaml
+kubectl apply -f docker/kubernetes/deployment.yaml
+kubectl apply -f docker/kubernetes/service.yaml
 
 # Validar estado
 kubectl get service reditos-app
-kubectl get all
+NAME          TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+reditos-app   LoadBalancer   10.96.75.193   <pending>     80:30962/TCP   17s
+
+# Validar estado
+kubectl get nodes
+NAME                            STATUS   ROLES           AGE   VERSION
+reditos-cluster-control-plane   Ready    control-plane   13m   v1.33.1
+reditos-cluster-worker          Ready    <none>          13m   v1.33.1
+reditos-cluster-worker2         Ready    <none>          13m   v1.33.1
+
+# Validar estado
+kubectl get pods -o wide
+NAME                           READY   STATUS    RESTARTS      AGE     IP           NODE                      
+reditos-app-7ccb5d5c47-bjmfn   0/1     Running   2 (78s ago)   9m13s   10.244.2.2   reditos-cluster-worker2 
+reditos-app-7ccb5d5c47-s4h2n   0/1     Running   2 (78s ago)   9m13s   10.244.1.2   reditos-cluster-worker
 ```
 
 ---
@@ -148,20 +164,21 @@ Este proyecto contiene una aplicación Node.js con integración y despliegue con
    - Publica la imagen en Docker Hub.
 
 3. **Deploy**
-   - Usa `kubectl` para aplicar los manifiestos YAML al clúster Kubernetes.
+   - Usa `kubectl` para aplicar los manifiestos .yml al clúster Kubernetes.
 
 4. **Variables de entorno (GitHub Secrets)**
 ```bash
   https://github.com/${{username}}/${{repository}}/settings/secrets/  
   
-  | Nombre           | Descripción                      |
-  |------------------|----------------------------------|
-  | DOCKER_USERNAME  | Usuario Docker Hub               |
-  | DOCKER_PASSWORD  | Token o contraseña Docker Hub    |
-  | KUBECONFIG       | Contenido completo de kubeconfig |
+| Nombre           | Descripción                      |
+|------------------|----------------------------------|
+| DOCKER_USERNAME  | Usuario Docker Hub               |
+| DOCKER_PASSWORD  | Token o contraseña Docker Hub    |
+| KUBECONFIG       | Contenido completo de kubeconfig |
 
-  kubectl config view --raw > kubeconfig
-  cat kubeconfig
+# Obtener secreto kubeconfig
+kubectl config view --raw > kubeconfig
+cat kubeconfig
 ```
 
 ---
