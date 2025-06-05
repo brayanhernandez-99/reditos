@@ -7,37 +7,91 @@ Prueba técnica para el Grupo Reditos, con el objetivo de evaluar las habilidade
 - Manejo de contenedores **(Docker - Kubernetes).**
 - Seguridad en la infraestructura
 
+## Estructura Principal 
+```bash
+reditos/
+├── README.md                    # Documentación principal del proyecto.
+├── .github/workflows            # Automatización con GitHub Actions (CI/CD).
+├── ansible/
+│   ├── .gitignore               # Ignora archivos temporales o sensibles.
+│   ├── inventory.ini            # Lista de hosts para ejecutar los playbooks.
+│   ├── site.yml                 # Playbook principal: define las tareas a ejecutar.
+│   ├── group_vars/              # Variables globales y encriptadas (vault).
+│   └── roles/
+│       └── nginx/               # Rol específico para instalar/configurar NGINX.
+│           ├── tasks/           # Tareas que define el rol.
+│           ├── templates/       # Archivos plantilla (HTML, config, etc).
+│           └── vars/            # Variables locales al rol.
+├── docker/
+│   ├── .gitignore               # Ignora archivos temporales o sensibles.
+│   ├── .env                     # Variables de entorno para contenedores.
+│   ├── Dockerfile               # Imagen base del servicio (probablemente web).
+│   ├── index.js                 # Código fuente principal del servicio Node.js.
+│   ├── package.json             # Dependencias y scripts de Node.js.
+│   ├── kubernetes/              # Archivos de despliegue para clúster k8s.
+│   │   ├── cluster.yml          # Configuración del clúster.
+│   │   ├── deployment.yaml      # Despliegue de la app en k8s.
+│   │   ├── fluentd.yaml         # Agente de logging (Fluentd) "DaemonSet".
+│   │   └── service.yaml         # Servicio expuesto (LoadBalancer o ClusterIP).
+│   └── test/                    # Pruebas automáticas para la app.
+│       ├── health.test.js       # Test de endpoint `/health`.
+│       ├── index.test.js        # Test general del index.
+│       └── notfound.test.js     # Test para rutas 404.
+└── terraform/
+    ├── .gitignore               # Ignora archivos temporales o sensibles.
+    ├── main.tf                  # Infraestructura principal (recursos raíz).
+    ├── provider.tf              # Proveedor configurado (AWS, GCP, etc).
+    ├── terraform.tfvars         # Valores concretos para variables.
+    ├── variables.tf             # Definición de variables reutilizables.
+    └── modules/                 # Módulos reutilizables para componentes clave.
+        ├── ec2/                 # Recursos relacionados con instancias EC2.
+        ├── network/             # Recursos de red (VPC, subnets, etc).
+        └── rds/                 # Configuración de base de datos RDS.
+```
+
 ---
 
-## 1. Infraestructura como Código (IaC) con Terraform
+# 1. Infraestructura como Código (IaC) con Terraform
 Para la implementación de esta solución, se deben tener en cuenta los siguientes requisitos:
-
 - Instalar **Terraform**: https://developer.hashicorp.com/terraform/downloads
-
 - Poseer una cuenta activa en **AWS**: https://aws.amazon.com/es/free
-
 - Tener instalado y configurado el **AWS CLI**: https://aws.amazon.com/es/cli/
 
 Una vez cumplidos los requisitos, seguir los siguientes pasos:
 
-1. Inicializar el proyecto:
-  ```bash
-  terraform init
-  ```
+**1. Inicializar el proyecto:**
+- Prepara tu entorno de trabajo.
+- Descarga los proveedores (como aws).
+- Inicializa el backend si estás usando almacenamiento remoto de estado (por ejemplo, S3).
+```bash
+cd terraform 
+terraform init
+```
 
-2. Verificar el plan de ejecución:
-  ```bash
-  terraform plan
-  ```
+**2. Verificar el plan de ejecución:**
+- Muestra un plan de lo que Terraform va a hacer, sin ejecutar nada todavía.
+- Compara tu configuración (.tf files) con el estado actual y calcula qué recursos crear, cambiar o destruir.
+```bash
+terraform plan
+```
 
-3. Aplicar los cambios:
-  ```bash
-  terraform apply
-  ```
+**3. Aplicar los cambios (desplegar infraestructura):**
+- Aplica los cambios necesarios para alcanzar el estado deseado definido en tus archivos .tf.
+- Te pedirá confirmación antes de ejecutar, a menos que uses -auto-approve.
+```bash
+terraform apply
+```
 
+**4. Borrar los cambios:**
+- Elimina todos los recursos que Terraform haya creado previamente según el archivo de estado.
+- Ideal para limpiar recursos en entornos de desarrollo o pruebas.
+- Te pedirá confirmación antes de ejecutar, a menos que uses -auto-approve.
+```bash
+terraform destroy
+```
 ---
 
-## 2.  Automatización de Configuración con Ansible.
+# 2.  Automatización de Configuración con Ansible.
 Para la implementación de esta solución, se deben tener en cuenta los siguientes requisitos:
 - Instalar **Python 3**: https://www.python.org/downloads/
 - Instalar **Ansible**: https://www.ansible.com/
@@ -46,8 +100,8 @@ Para la implementación de esta solución, se deben tener en cuenta los siguient
 
 Una vez cumplidos los requisitos, seguir los siguientes pasos:
 
-1. Ejecución local del Playbook en Ansible:
-  ```bash
+**1. Ejecución local del Playbook en Ansible:**
+```bash
 # Encriptar contraseñas 
 ansible-vault encrypt group_vars/vault.yml
 
@@ -64,8 +118,8 @@ ansible-playbook -i inventory.ini site.yml --ask-vault-pass
   password: ansible
 ```
 
-2. Ejecución del Playbook desde un contenedor con Ansible:
-  ```bash
+**2. Ejecución del Playbook desde un contenedor con Ansible:**
+```bash
 # Descargar imagen de Ansible
 docker pull alpine/ansible:latest
 
@@ -75,7 +129,7 @@ docker run -it alpine/ansible:latest "/bin/bash"
 
 ---
 
-## 3. Contenedores y Orquestación con Docker y Kubernetes
+# 3. Contenedores y Orquestación con Docker y Kubernetes
 Para la implementación de esta solución, se deben tener en cuenta los siguientes requisitos:
 - Instalar **Docker**: https://www.docker.com/products/docker-desktop/
 - Cuenta en Docker Hub: https://hub.docker.com/repositories/
@@ -86,17 +140,18 @@ Para la implementación de esta solución, se deben tener en cuenta los siguient
 
 Una vez cumplidos los requisitos, seguir los siguientes pasos:
 
-1. Crear variables de entorno **.evn** 
+**1. Crear variables de entorno .evn** 
 ```bash
 cd docker
 touch .env
 
-# APP_NAME=reditos-app
-# VERSION=1.0.0
-# PORT=3000
+# File .evn
+APP_NAME=reditos-app
+VERSION=1.0.0
+PORT=3000
 ```
 
-2. Ejecutar aplicacion en Docker 
+**2. Ejecutar aplicacion en Docker**
 ```bash
 # Ingresar al dir de docker
 cd docker
@@ -104,13 +159,13 @@ docker build -t brayanhernandez99/reditos-app:latest .
 docker run -p 3000:3000 brayanhernandez99/reditos-app:latest
 ```
 
-3. Publicar imagen en DockerHub
+**3. Publicar imagen en DockerHub**
 ```bash
 docker login
 docker push brayanhernandez99/reditos-app:latest
 ```
 
-4. Ejecutar localmente un Cluster en Kubernetes
+**4. Ejecutar localmente un Cluster en Kubernetes**
 ```bash
 # Crear un Cluster con multi nodo con Kind 
 kind create cluster --config docker/kubernetes/cluster.yml
@@ -127,18 +182,18 @@ kubectl apply -f docker/kubernetes/service.yaml
 
 # Validar estado service
 kubectl get service reditos-app
+kubectl get nodes
+kubectl get pods -o wide
+
+# Outputs
 NAME          TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
 reditos-app   LoadBalancer   10.96.75.193   <pending>     80:30962/TCP   17s
 
-# Validar estado nodos
-kubectl get nodes
 NAME                            STATUS   ROLES           AGE   VERSION
 reditos-cluster-control-plane   Ready    control-plane   13m   v1.33.1
 reditos-cluster-worker          Ready    <none>          13m   v1.33.1
 reditos-cluster-worker2         Ready    <none>          13m   v1.33.1
 
-# Validar estado pods
-kubectl get pods -o wide
 NAME                           READY   STATUS    RESTARTS      AGE     IP           NODE                      
 reditos-app-7ccb5d5c47-bjmfn   0/1     Running   2 (78s ago)   9m13s   10.244.2.2   reditos-cluster-worker2 
 reditos-app-7ccb5d5c47-s4h2n   0/1     Running   2 (78s ago)   9m13s   10.244.1.2   reditos-cluster-worker
@@ -146,7 +201,7 @@ reditos-app-7ccb5d5c47-s4h2n   0/1     Running   2 (78s ago)   9m13s   10.244.1.
 
 ---
 
-## 4. Pipeline CI/CD con GitHub Actions.
+# 4. Pipeline CI/CD con GitHub Actions.
 Para la implementación de esta solución, se deben tener en cuenta los siguientes requisitos:
 - Poseer con una cuenta en Github: https://github.com/
 - Contar con un repositorio y crear al menos un archivo de workflow
@@ -222,19 +277,17 @@ users:
 
 ---
 
-## 5. Seguridad y Buenas Prácticas.
+# 5. Seguridad y Buenas Prácticas.
 Para la implementación de esta solución, se tuvieron en cuenta criterios como posibles mejoras, buenas prácticas ademas de implementar seguridad las cuales seran descritas acontinuación:
 
-## Buenas Practicas Usadas
+### 1. Infraestructura como Código (Terraform) [Ver archivo](terraform/)
 
-### 1. Infraestructura como Código (Terraform)
-
-- **Modularización**  
+- **Modularización**
   He dividido la infraestructura en módulos reutilizables (network, ec2, rds). De este modo:
   - Puedo aislar responsabilidades (VPC/Subnets, instancias EC2, clúster RDS) y facilitar la reutilización de código en otros proyectos.  
   - Cada módulo se prueba y versiona de forma independiente, manteniendo la configuración más limpia y reduciendo el riesgo de cambios accidentales.
 
-- **Variables**  
+- **Variables**
   - Definí variables explícitas en `variables.tf` y `terraform.tfvars`, evitando “hardcodear” valores dentro de los recursos.  
   - Marqué las credenciales (por ejemplo, `db_username`, `db_password`) como **sensitive = true**, de manera que no aparezcan expuestas en la salida de consola ni en el estado de Terraform por error.
 
@@ -247,16 +300,16 @@ Para la implementación de esta solución, se tuvieron en cuenta criterios como 
 
 ### 2. Automatización con Ansible
 
-- **Roles y organización**  
+- **Roles y organización** - [Ver archivo](ansible\roles\nginx)
   Separé la lógica por rol (`roles/nginx`), siguiendo la convención de Ansible y asi:
   - Poder agregar nuevos roles en el futuro (p. ej. base de datos, usuarios, monitoreo) sin desorden.  
   - Agrupé parámetros comunes en `group_vars/all.yml` (intérprete de Python, usuario SSH, llave privada), evitando duplicar valores.
 
-- **Gestión de secretos**  
+- **Gestión de secretos** - [Ver archivo](ansible\group_vars)
   - Utilizo **Ansible Vault** (`group_vars/vault.yml`) para almacenar credenciales y datos sensibles. De ese modo, ninguna contraseña viaja en texto plano dentro del repositorio.  
   - Ademas de cifrar el Vault para mantener secretos ocultos y incluyéndolo en `.gitignore`.
 
-- **Configuracion**  
+- **Configuracion** - [Ver archivo](ansible\roles\nginx\tasks\main.yml)
   - En los playbooks uso módulos como `apt` con `state: present` y `update_cache: true` para que Nginx se instale sólo si no existe.  
   - Evito usar `shell` o `command` cuando existe un módulo específico (p. ej. utilizo `service` para levantar o validar el servicio de Nginx).
 
@@ -264,15 +317,15 @@ Para la implementación de esta solución, se tuvieron en cuenta criterios como 
 
 ### 3. Contenedores (Docker)
 
-- **Imagen base ligera**  
+- **Imagen base ligera** - [Ver archivo](docker\Dockerfile)
   - Seleccioné `node:18-alpine` para que la imagen final sea lo más pequeña posible y tenga menos vulnerabilidades.  
 
-- **Variables de entorno y configuración**  
+- **Variables de entorno y configuración** - [Ver archivo](docker\.env)
   - Cargo un archivo `.env` local (excluido del repositorio) para no exponer configuraciones sensibles.  
 
 ---
 
-### 4. CI/CD con GitHub Actions
+### 4. CI/CD con GitHub Actions - [Ver archivo](.github\workflows\deploy.yml)
 
 - **Pipeline multinivel (tests → build → deploy)**  
   - Dividí el flujo en jobs (`tests`, `build_and_push`, `deploy`), lo cual:  
@@ -291,21 +344,20 @@ Para la implementación de esta solución, se tuvieron en cuenta criterios como 
 - **Linter de estado y salud**  
   - En la etapa de `tests` corro `npm test` antes de construir la imagen, garantizando que no se despliegue código con fallos.  
   - En la etapa de `deploy` reviso el estado de los pods con `kubectl get pods -o wide`.
-
 ---
 
 ### 5. Kubernetes (Manifiestos)
 
-- **Definición de Recursos**  
+- **Definición de Recursos** - [Ver archivo](docker\kubernetes\deployment.yaml)
   - Configuré **livenessProbe** y **readinessProbe** para asegurarme de que los pods se reinicien si la aplicación deja de responder (`/health`) y no reciban tráfico hasta estar listos.  
   - Especifico **requests** y **limits** de CPU/memoria en el Deployment para:
     - Garantizar calidad de servicio y estabilidad del clúster.  
     - Evitar que un pod consuma más recursos de los asignados y provoque “evictions” en el nodo.
 
-- **Servicio LoadBalancer**  
+- **Servicio LoadBalancer** - [Ver archivo](docker\kubernetes\service.yaml) 
   - Utilizo un Service de tipo `LoadBalancer` para exponer el Deployment. De esta forma, en un proveedor cloud con soporte L4/L7 (AWS, GCP), se aprovisiona el balanceador automáticamente.
 
-- **DaemonSet para Fluentd** **Mejora Añdida**
+- **DaemonSet para Fluentd** **Mejora Añdida** - [Ver archivo](docker\kubernetes\fluentd.yaml) 
   - Desplegué un DaemonSet (`fluentd-es-v1.20`) que recolecta logs de todos los nodos (hostPath `/var/log`, `/var/lib/docker/containers`) y los envía a Elasticsearch/Stack.  
   - Con esto, centralizo los logs y evito pérdida de información ademas de monitorear la aplicación en tiempo real.
 
