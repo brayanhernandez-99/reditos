@@ -1,3 +1,13 @@
+variable "private_reditos_id" {
+  description = "ID de la subred privada donde se lanzará la instancia EC2"
+  type        = list
+}
+
+variable "rds_sg_reditos_id" {
+  description = "ID del security group la subred privada donde se lanzará la instancia EC2"
+  type        = list
+}
+
 variable "db_name" {
   description = "Nombre de la base de datos"
   type        = string

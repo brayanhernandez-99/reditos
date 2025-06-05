@@ -1,3 +1,13 @@
+variable "public_snet_reditos" {
+  description = "ID de la subred pública donde se lanzará la instancia EC2"
+  type        = string
+}
+
+variable "ec2_sg_reditos_id" {
+  description = "ID del security group la subred pública donde se lanzará la instancia EC2"
+  type        = string
+}
+
 variable "ec2_instance_type" {
   description = "Tipo de instancia EC2"
   type        = string
@@ -14,7 +24,4 @@ variable "ssh_key_name" {
   type        = string
 }
 
-variable "public_subnet_reditos" {
-  description = "ID de la subred pública donde se lanzará la instancia EC2"
-  type        = string
-}
+

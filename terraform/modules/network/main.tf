@@ -6,11 +6,17 @@ resource "aws_subnet" "public_snet_reditos" {
   vpc_id                  = aws_vpc.vpc_reditos.id
   cidr_block              = var.public_snet_reditos
   map_public_ip_on_launch = true
+  tags = {
+    Name = "public_snet_reditos"
+  }
 }
 
 resource "aws_subnet" "private_snet_reditos" {
   vpc_id     = aws_vpc.vpc_reditos.id
   cidr_block = var.private_snet_reditos
+  tags = {
+    Name = "private_snet_reditos"
+  }
 }
 
 resource "aws_security_group" "ec2_sg_reditos" {
