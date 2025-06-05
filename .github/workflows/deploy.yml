@@ -75,7 +75,7 @@ jobs:
       - name: Configurar kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: '1.29.3'
+          version: 'latest'
 
       - name: Establecer credenciales kubeconfig
         run: |
