@@ -296,7 +296,8 @@ Para la implementación de esta solución, se tuvieron en cuenta criterios como 
 
 - **Seguridad en la red redes**  
   - El Security Group del RDS sólo permite tráfico entrante en el puerto 3306 desde el SG de EC2, evitando exponer MySQL al público.  
-  - El Security Group de EC2 está restringido a los puertos estrictamente necesarios (SSH, HTTP/HTTPS).  
+  - El Security Group de EC2 está restringido a los puertos estrictamente necesarios (SSH, HTTP/HTTPS).
+  - El servicio de RDS se encuentra cifrado usando la clave por defecto de RDS (AWS-managed key).
   - Etiqueté todos los recursos con `tags` para facilitar la identificación y trazabilidad en AWS.
 
 ---
