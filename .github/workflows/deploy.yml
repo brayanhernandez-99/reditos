@@ -19,12 +19,23 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '18.19.0'
+
+      - name: Cache dependencias de npm
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Instalar dependencias
         run: npm install
 
-      - name: Ejecutar pruebas
+      - name: Ejecutar Linter (ESLint)
+        run: npm run lint || true
+
+      - name: Ejecutar Pruebas (Mocha)
         run: npm test
 
   build_and_push:
@@ -64,7 +75,7 @@ jobs:
       - name: Configurar kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: 'latest'
+          version: '1.29.3'
 
       - name: Establecer credenciales kubeconfig
         run: |
@@ -80,3 +91,6 @@ jobs:
         run: |
           kubectl apply -f deployment.yaml
           kubectl apply -f service.yaml
+
+      - name: Verificar pods
+        run: kubectl get pods -o wide
