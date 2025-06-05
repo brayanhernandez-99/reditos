@@ -73,5 +73,5 @@ jobs:
         env:
           KUBECONFIG: $HOME/kubeconfig
         run: |
-          kubectl apply -f docker/kubernetes/deployment.yaml
-          kubectl apply -f docker/kubernetes/service.yaml
+          kubectl apply -f kubernetes/deployment.yaml
+          kubectl apply -f kubernetes/service.yaml
