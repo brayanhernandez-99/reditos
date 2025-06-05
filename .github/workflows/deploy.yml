@@ -66,29 +66,19 @@ jobs:
         with:
           version: 'latest'
 
-      - name: Establecer kubeconfig desde secreto
+      - name: Establecer credenciales kubeconfig
         run: |
-          echo "${{ secrets.KUBECONFIG }}" > $HOME/kubeconfig
-          echo "------ CONTENIDO DEL KUBECONFIG ------"
-          cat $HOME/kubeconfig
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+          echo "Contenido parcial:"
+          head -n 5 ~/.kube/config
 
-      - name: Establecer kubeconfig desde secreto
-        run: |
-          echo "${{ secrets.KUBECONFIG }}" > $HOME/kubeconfig
-          echo "${{ secrets.KUBECONFIG }}" > $HOME/kubeconfig
-          echo "Tamaño del archivo:"
-          wc -c $HOME/kubeconfig
-
-      - name: Verificar credenciales Kubernetes
-        env:
-          KUBECONFIG: $HOME/kubeconfig
+      - name: Verificar conexión con cluster
         run: |
           kubectl config view
           kubectl cluster-info
      
       #- name: Desplegar a Kubernetes
-      #  env:
-      #    KUBECONFIG: $HOME/kubeconfig
       #  run: |
       #    kubectl apply -f deployment.yaml
       #    kubectl apply -f service.yaml
