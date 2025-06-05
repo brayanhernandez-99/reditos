@@ -166,7 +166,7 @@ ngrok config add-authtoken ${{ngrok_token}}
 kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'
 
 # Exponer puerto hacia Internet
-ngrok http --host-header=rewrite 127.0.0.1:60892
+ngrok http https://127.0.0.1:60892 --host-header=rewrite
 ```
 
 ## Flujo del Pipeline
@@ -198,10 +198,8 @@ cat kubeconfig
 
 # Remplazar ip Cluster Kubernetes https://127.0.0.1:60892
 vim kubeconfig
-server: https://f2a3-84-100-1-203.ngrok.io 
+server: https://abc123.ngrok-free.app
 ```
-
-https://11af-186-121-58-124.ngrok-free.app
 
 ---
 
