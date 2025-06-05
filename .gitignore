@@ -1,0 +1,84 @@
+# Terraform
+*.tfstate
+*.tfstate.backup
+**/*.tfstate
+**/*.tfstate.backup
+*.tfplan
+.terraform/
+.terraform.lock.hcl
+.terraform.tfvars
+*.tfvars
+
+# Terraform logs
+crash.log
+terraform.log
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Compressed archives
+*.zip
+*.rar
+
+# Docker
+*.local
+docker-compose.override.yml
+
+# Kubernetes
+kubernetes/.DS_Store
+
+# VS Code
+.vscode/
+
+# Optional npm cache
+.npm/
+
+# Test coverage
+coverage/
+*.lcov
+
+# Build artifacts
+dist/
+
+# Ansible
+*.vault
+*.vault.yaml
+*.vault.yml
+group_vars/*.vault
+group_vars/*/vault.yml
+host_vars/*.vault
+host_vars/*/vault.yml
+
+# Ignore roles dependencies if managed by Galaxy
+roles/*/
+!roles/requirements.yml
+
+# SSH keys / certificates / secrets
+*.pem
+*.key
+*.crt
+*.pub
+vault_pass.txt
+
+# Temporary / compiled / retry files
+*.retry
+*.tmp
+
+# Sensitive inventory files
+inventory/*.ini
+inventory/*.yaml
+inventory/*.yml
