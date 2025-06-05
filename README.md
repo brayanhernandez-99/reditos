@@ -227,19 +227,22 @@ ngrok http https://127.0.0.1:60892 --host-header=rewrite
 ## Flujo del Pipeline
 
 1. **Test**
-   - Usa `npm install` para instalar dependencias.
-   - Ejecuta `npm test` con pruebas unitarias localizadas en `docker/test/*.test.js`.
+  - Restaura el caché de npm si existe (p. ej. actions/cache en CI).
+  - Ejecuta npm install.
+  - Corre npm run lint para validar con ESLint.
+  - Lanza pruebas unitarias (npm test en docker/test/*.test.js).
 
 2. **Build & Push**
-   - Construye la imagen con Docker.
-   - Publica la imagen en Docker Hub.
+  - Construye la imagen con Docker.
+  - Publica la imagen en Docker Hub.
 
 3. **Deploy**
-   - Usa `kubectl` para aplicar los manifiestos .yml al clúster Kubernetes.
+  - Con la imagen publicada, la despliega en el Cluster de Kubernetes.
+  - Usa `kubectl` para aplicar los manifiestos .yml al clúster Kubernetes.
 
 4. **Variables de entorno (GitHub Secrets)**
 ```bash
-  https://github.com/${{username}}/${{repository}}/settings/secrets/  
+https://github.com/${{username}}/${{repository}}/settings/secrets/  
   
 | Nombre           | Descripción                      |
 |------------------|----------------------------------|
