@@ -3,9 +3,9 @@ variable "public_snet_reditos" {
   type        = string
 }
 
-variable "ec2_sg_reditos_id" {
+variable "ec2_sg_reditos_ids" {
   description = "ID del security group la subred pública donde se lanzará la instancia EC2"
-  type        = string
+  type        = list(string)
 }
 
 variable "ec2_instance_type" {

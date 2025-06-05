@@ -1,5 +1,8 @@
 resource "aws_vpc" "vpc_reditos" {
   cidr_block = var.vpc_reditos
+  tags = {
+    Name = "vpc_reditos"
+  }
 }
 
 resource "aws_subnet" "public_snet_reditos" {
@@ -11,11 +14,21 @@ resource "aws_subnet" "public_snet_reditos" {
   }
 }
 
-resource "aws_subnet" "private_snet_reditos" {
-  vpc_id     = aws_vpc.vpc_reditos.id
-  cidr_block = var.private_snet_reditos
+resource "aws_subnet" "private_snet_reditos_az_1" {
+  vpc_id            = aws_vpc.vpc_reditos.id
+  cidr_block        = var.private_snet_reditos_az_1
+  availability_zone = var.availability_zone_1
   tags = {
-    Name = "private_snet_reditos"
+    Name = "private_snet_reditos_az_1"
+  }
+}
+
+resource "aws_subnet" "private_snet_reditos_az_2" {
+  vpc_id            = aws_vpc.vpc_reditos.id
+  cidr_block        = var.private_snet_reditos_az_2
+  availability_zone = var.availability_zone_2
+  tags = {
+    Name = "private_snet_reditos_az_2"
   }
 }
 
@@ -51,7 +64,7 @@ resource "aws_security_group" "ec2_sg_reditos" {
   }
 }
 
-resource "aws_security_group" "rds_sg_reditos" {
+resource "aws_security_group" "rds_sg_reditos_az_1" {
   vpc_id = aws_vpc.vpc_reditos.id
   ingress {
     from_port       = 3306
@@ -66,6 +79,25 @@ resource "aws_security_group" "rds_sg_reditos" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "rds_sg_reditos"
+    Name = "rds_sg_reditos_az_1"
+  }
+}
+
+resource "aws_security_group" "rds_sg_reditos_az_2" {
+  vpc_id = aws_vpc.vpc_reditos.id
+  ingress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ec2_sg_reditos.id]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "rds_sg_reditos_az_2"
   }
 }

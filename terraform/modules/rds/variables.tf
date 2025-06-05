@@ -1,11 +1,11 @@
-variable "private_reditos_id" {
-  description = "ID de la subred privada donde se lanzará la instancia EC2"
-  type        = list
+variable "private_reditos_ids" {
+  description = "Lista de IDs de subredes privadas en distintas AZs para RDS"
+  type        = list(string)
 }
 
-variable "rds_sg_reditos_id" {
-  description = "ID del security group la subred privada donde se lanzará la instancia EC2"
-  type        = list
+variable "rds_sg_reditos_ids" {
+  description = "Lista de IDs del security group en distintas AZs para RDS"
+  type        = list(string)
 }
 
 variable "db_name" {
