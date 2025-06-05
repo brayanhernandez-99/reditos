@@ -195,7 +195,13 @@ ngrok http --host-header=rewrite 127.0.0.1:60892
 # Obtener secreto kubeconfig
 kubectl config view --raw > kubeconfig
 cat kubeconfig
+
+# Remplazar ip Cluster Kubernetes https://127.0.0.1:60892
+vim kubeconfig
+server: https://f2a3-84-100-1-203.ngrok.io 
 ```
+
+https://11af-186-121-58-124.ngrok-free.app
 
 ---
 
