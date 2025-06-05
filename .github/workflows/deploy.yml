@@ -71,12 +71,12 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
 
-      - name: Verificar conexión con cluster
+      - name: Verificar conexión
         run: |
           kubectl config view
           kubectl cluster-info
      
-      #- name: Desplegar a Kubernetes
-      #  run: |
-      #    kubectl apply -f deployment.yaml
-      #    kubectl apply -f service.yaml
+      - name: Desplegar a Kubernetes
+        run: |
+          kubectl apply -f deployment.yaml
+          kubectl apply -f service.yaml

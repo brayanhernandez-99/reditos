@@ -194,14 +194,30 @@ ngrok http https://127.0.0.1:60892 --host-header=rewrite
 
 # Obtener secreto kubeconfig
 kubectl config view --raw > kubeconfig
-cat kubeconfig
 
-# Remplazar ip Cluster Kubernetes https://127.0.0.1:60892
+# Crear Token para GitHub
+kubectl create serviceaccount github --namespace default
+kubectl create clusterrolebinding github-ci-binding --clusterrole=cluster-admin --serviceaccount=default:github
+kubectl create token github --namespace default
+
+# Editar archivo 
 vim kubeconfig
-server: https://abc123.ngrok-free.app
+  - Remplazar ip Cluster Kubernetes https://127.0.0.1:60892 por server: https://abc123.ngrok-free.app
+  - Remplazar certificate-authority-data: LS0tLS1.... por insecure-skip-tls-verify: true
 
-# Remplazar certificate-authority-data: LS0tLS1....
-insecure-skip-tls-verify: true
+# Ejemplo KUBECONFIG
+apiVersion: v1
+clusters:
+- cluster:
+    insecure-skip-tls-verify: true
+    server: https://abc123.ngrok-free.app
+  name: kind-reditos-cluster
+...
+...
+users: 
+- name: kind-reditos-cluster
+  user:
+    token: eyJhbG...
 ```
 
 ---
