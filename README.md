@@ -89,6 +89,18 @@ terraform apply
 ```bash
 terraform destroy
 ```
+
+**Nota**
+- Recordar crear el Key-Pair en AWS para la instancia EC2.
+- Tener credenciales para conectarse por la CLI de AWS.
+```bash
+terraform destroy
+```bash
+# Validar version de la CLI
+aws --version
+
+# Asignar credenciales ~/.aws/credentials: Se crean desde IAM en AWS IAM/Users/Security credentials/Access keys/Create
+aws configure
 ---
 
 # 2.  Automatización de Configuración con Ansible.
