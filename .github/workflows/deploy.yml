@@ -70,8 +70,6 @@ jobs:
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
-          echo "Contenido parcial:"
-          head -n 5 ~/.kube/config
 
       - name: Verificar conexión con cluster
         run: |

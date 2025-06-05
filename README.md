@@ -199,6 +199,9 @@ cat kubeconfig
 # Remplazar ip Cluster Kubernetes https://127.0.0.1:60892
 vim kubeconfig
 server: https://abc123.ngrok-free.app
+
+# Remplazar certificate-authority-data: LS0tLS1....
+insecure-skip-tls-verify: true
 ```
 
 ---
