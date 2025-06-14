@@ -101,6 +101,8 @@ aws --version
 
 # Asignar credenciales ~/.aws/credentials: Se crean desde IAM en AWS IAM/Users/Security credentials/Access keys/Create
 aws configure
+```
+
 ---
 
 # 2.  Automatización de Configuración con Ansible.
